@@ -38,16 +38,18 @@ Rails.application.routes.draw do
   # Webhooks Stripe
   post "/webhooks/stripe", to: "webhooks/stripe#create"
 
-  # Booking Page pública (/:tenant_slug e /b/:tenant_slug)
-  scope "(:prefix)", prefix: /b/, as: :booking_prefix do
-    scope "/:tenant_slug", as: :booking do
-      get "/", to: "booking/services#index"
-      get "/professionals", to: "booking/professionals#index", as: :professionals
-      get "/slots", to: "booking/slots#index", as: :slots
-      resources :appointments, only: %i[new create show],
-                               controller: "booking/appointments",
-                               as: :appointments
-    end
+  # Alias /b/:tenant_slug redireciona para /:tenant_slug
+  get "/b/:tenant_slug/*path", to: redirect("/%{tenant_slug}/%{path}")
+  get "/b/:tenant_slug", to: redirect("/%{tenant_slug}")
+
+  # Booking Page pública (/:tenant_slug)
+  scope "/:tenant_slug", as: :booking do
+    get "/", to: "booking/services#index"
+    get "/professionals", to: "booking/professionals#index", as: :professionals
+    get "/slots", to: "booking/slots#index", as: :slots
+    resources :appointments, only: %i[new create show],
+                             controller: "booking/appointments",
+                             as: :appointments
   end
 
   # Root route
