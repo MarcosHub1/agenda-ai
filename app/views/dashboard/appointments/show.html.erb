@@ -1,0 +1,126 @@
+<div class="max-w-4xl mx-auto space-y-6">
+  <!-- Header with Status and Actions -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <%= link_to "← Voltar para Agendamentos", dashboard_appointments_path, class: "text-xs font-semibold text-indigo-600 hover:text-indigo-800" %>
+      <div class="flex items-center gap-3 mt-2">
+        <h1 class="text-2xl font-bold text-slate-900">Agendamento #<%= @appointment.id.first(8) %></h1>
+        <%= appointment_status_badge(@appointment.status) %>
+      </div>
+      <p class="text-xs text-slate-500 mt-0.5">Criado em <%= l(@appointment.created_at, format: :long) %></p>
+    </div>
+
+    <!-- Quick Status Actions -->
+    <div class="flex flex-wrap items-center gap-2">
+      <%= link_to "Editar / Reagendar", edit_dashboard_appointment_path(@appointment), class: "px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-xl text-xs transition-colors" %>
+
+      <% if @appointment.pending? %>
+        <%= button_to "Confirmar", confirm_dashboard_appointment_path(@appointment), method: :patch, class: "px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-xl text-xs transition-colors cursor-pointer" %>
+      <% end %>
+
+      <% if @appointment.confirmed? %>
+        <%= button_to "Concluir", complete_dashboard_appointment_path(@appointment), method: :patch, class: "px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl text-xs transition-colors cursor-pointer" %>
+        <%= button_to "Não compareceu", no_show_dashboard_appointment_path(@appointment), method: :patch, class: "px-3.5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium rounded-xl text-xs transition-colors cursor-pointer" %>
+      <% end %>
+
+      <% unless @appointment.cancelled? || @appointment.completed? %>
+        <%= button_to "Cancelar", cancel_dashboard_appointment_path(@appointment), method: :patch, data: { turbo_confirm: "Tem certeza que deseja cancelar este agendamento?" }, class: "px-3.5 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 font-medium rounded-xl text-xs transition-colors cursor-pointer" %>
+      <% end %>
+    </div>
+  </div>
+
+  <% if @appointment.cancelled? && @appointment.cancellation_reason.present? %>
+    <div class="bg-rose-50 border border-rose-200 rounded-2xl p-4 text-rose-800 text-sm">
+      <span class="font-bold">Motivo do cancelamento:</span> <%= @appointment.cancellation_reason %>
+    </div>
+  <% end %>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <!-- Main Appointment Details -->
+    <div class="md:col-span-2 space-y-6">
+      <div class="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-sm space-y-6">
+        <div>
+          <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Serviço & Horário</h3>
+          <div class="p-4 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between">
+            <div>
+              <h4 class="text-base font-bold text-slate-900"><%= @appointment.service&.name %></h4>
+              <p class="text-xs text-slate-500 mt-0.5">Duração: <%= @appointment.service&.duration_minutes %> minutos</p>
+            </div>
+            <div class="text-right">
+              <span class="text-lg font-bold text-slate-900 block"><%= format_cents(@appointment.price_cents) %></span>
+              <span class="text-xs text-slate-500">Valor total</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4 pt-2">
+          <div>
+            <p class="text-xs font-semibold text-slate-500">Data do Atendimento</p>
+            <p class="text-sm font-bold text-slate-900 mt-1"><%= l(@appointment.starts_at.to_date, format: :long) %></p>
+          </div>
+
+          <div>
+            <p class="text-xs font-semibold text-slate-500">Horário</p>
+            <p class="text-sm font-bold text-indigo-600 mt-1">
+              <%= @appointment.starts_at.strftime("%H:%M") %> às <%= @appointment.ends_at.strftime("%H:%M") %>
+            </p>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100">
+          <p class="text-xs font-semibold text-slate-500 mb-1">Profissional Responsável</p>
+          <div class="flex items-center gap-3 mt-2">
+            <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 font-bold text-xs flex items-center justify-center">
+              <%= @appointment.professional&.name&.first %>
+            </div>
+            <div>
+              <p class="text-sm font-semibold text-slate-900"><%= @appointment.professional&.name %></p>
+              <p class="text-xs text-slate-500"><%= @appointment.professional&.email %></p>
+            </div>
+          </div>
+        </div>
+
+        <% if @appointment.notes.present? %>
+          <div class="pt-4 border-t border-slate-100">
+            <p class="text-xs font-semibold text-slate-500 mb-1">Observações do Cliente</p>
+            <p class="text-sm text-slate-700 bg-slate-50 p-3 rounded-xl border border-slate-100"><%= @appointment.notes %></p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Client Info Card -->
+    <div>
+      <div class="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-sm space-y-4">
+        <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider">Dados do Cliente</h3>
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-slate-100 text-slate-700 font-bold flex items-center justify-center">
+            <%= @appointment.client&.name&.first || "C" %>
+          </div>
+          <div>
+            <h4 class="font-bold text-slate-900 text-sm"><%= @appointment.client&.name %></h4>
+            <%= link_to "Ver Histórico", dashboard_client_path(@appointment.client), class: "text-xs text-indigo-600 hover:text-indigo-800 font-medium" if @appointment.client %>
+          </div>
+        </div>
+
+        <div class="space-y-2 pt-3 border-t border-slate-100 text-xs text-slate-600">
+          <% if @appointment.client&.email.present? %>
+            <div class="flex items-center gap-2">
+              <span class="text-slate-400">✉️</span>
+              <a href="mailto:<%= @appointment.client.email %>" class="hover:underline truncate"><%= @appointment.client.email %></a>
+            </div>
+          <% end %>
+
+          <% if @appointment.client&.phone.present? %>
+            <div class="flex items-center gap-2">
+              <span class="text-slate-400">📱</span>
+              <a href="https://wa.me/<%= @appointment.client.phone.gsub(/\D/, '') %>" target="_blank" class="hover:underline font-semibold text-emerald-600">
+                <%= @appointment.client.phone %> (WhatsApp)
+              </a>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,70 @@
+<div class="space-y-6">
+  <div>
+    <%= link_to "← Voltar para Clientes", dashboard_clients_path, class: "text-xs font-semibold text-indigo-600 hover:text-indigo-800" %>
+    <div class="flex items-center gap-3 mt-2">
+      <div class="w-12 h-12 rounded-2xl bg-indigo-100 text-indigo-700 font-bold text-lg flex items-center justify-center shadow-sm">
+        <%= @client.name.first %>
+      </div>
+      <div>
+        <h1 class="text-2xl font-bold text-slate-900"><%= @client.name %></h1>
+        <p class="text-xs text-slate-500">
+          <%= @client.email.presence || "Sem e-mail" %> · <%= @client.phone.presence || "Sem telefone" %>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Appointments History -->
+  <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+    <div class="p-5 border-b border-slate-100">
+      <h3 class="font-bold text-slate-900 text-base">Histórico de Agendamentos (<%= @appointments.count %>)</h3>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr class="bg-slate-50 border-b border-slate-200/80 text-slate-500 text-xs font-semibold uppercase tracking-wider">
+            <th class="py-3.5 px-4 sm:px-6">Data</th>
+            <th class="py-3.5 px-4">Serviço</th>
+            <th class="py-3.5 px-4">Profissional</th>
+            <th class="py-3.5 px-4">Status</th>
+            <th class="py-3.5 px-4">Valor</th>
+            <th class="py-3.5 px-4 text-right">Ações</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 text-sm text-slate-700">
+          <% if @appointments.any? %>
+            <% @appointments.each do |appt| %>
+              <tr class="hover:bg-slate-50/70 transition-colors">
+                <td class="py-4 px-4 sm:px-6 font-semibold text-slate-900 whitespace-nowrap">
+                  <%= l(appt.starts_at, format: :short) %>
+                </td>
+                <td class="py-4 px-4 font-medium text-slate-900">
+                  <%= appt.service&.name %>
+                </td>
+                <td class="py-4 px-4 text-slate-600 text-xs">
+                  <%= appt.professional&.name %>
+                </td>
+                <td class="py-4 px-4 whitespace-nowrap">
+                  <%= appointment_status_badge(appt.status) %>
+                </td>
+                <td class="py-4 px-4 font-bold text-slate-900 whitespace-nowrap">
+                  <%= format_cents(appt.price_cents) %>
+                </td>
+                <td class="py-4 px-4 text-right whitespace-nowrap">
+                  <%= link_to "Detalhes", dashboard_appointment_path(appt), class: "text-xs font-semibold text-indigo-600 hover:text-indigo-800" %>
+                </td>
+              </tr>
+            <% end %>
+          <% else %>
+            <tr>
+              <td colspan="6" class="py-10 text-center text-slate-400">
+                Nenhum histórico encontrado para este cliente.
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

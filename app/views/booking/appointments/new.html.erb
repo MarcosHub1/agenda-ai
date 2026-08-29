@@ -1,0 +1,73 @@
+<div class="p-6 sm:p-8 space-y-6">
+  <!-- Step Indicator -->
+  <div class="flex items-center justify-between border-b border-slate-100 pb-5">
+    <div class="flex items-center space-x-2">
+      <span class="w-7 h-7 rounded-full bg-indigo-600 text-white font-bold text-xs flex items-center justify-center">4</span>
+      <span class="font-bold text-slate-900 text-sm">Seus Dados e Confirmação</span>
+    </div>
+    <span class="text-xs text-slate-400 font-medium">Passo 4 de 4</span>
+  </div>
+
+  <!-- Booking Summary Card -->
+  <div class="bg-gradient-to-br from-indigo-50/70 to-slate-50 p-5 rounded-2xl border border-indigo-100 space-y-4">
+    <div class="flex items-center justify-between">
+      <span class="text-xs font-bold text-indigo-900 uppercase tracking-wider">Resumo do Agendamento</span>
+      <span class="text-base font-bold text-indigo-700"><%= format_cents(@service.price_cents, @service.currency) %></span>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+      <div class="p-3 bg-white rounded-xl border border-indigo-100/80 shadow-sm">
+        <span class="text-slate-400 block mb-0.5">Serviço</span>
+        <span class="font-bold text-slate-900 text-sm"><%= @service.name %></span>
+        <span class="text-slate-500 block"><%= @service.duration_minutes %> minutos</span>
+      </div>
+
+      <div class="p-3 bg-white rounded-xl border border-indigo-100/80 shadow-sm">
+        <span class="text-slate-400 block mb-0.5">Profissional</span>
+        <span class="font-bold text-slate-900 text-sm"><%= @professional.name %></span>
+      </div>
+
+      <div class="p-3 bg-white rounded-xl border border-indigo-100/80 shadow-sm">
+        <span class="text-slate-400 block mb-0.5">Data & Horário</span>
+        <span class="font-bold text-slate-900 text-sm"><%= l(@starts_at.to_date, format: :short) %></span>
+        <span class="font-semibold text-indigo-600 block"><%= @starts_at.strftime("%H:%M") %> às <%= (@starts_at + @service.duration_minutes.minutes).strftime("%H:%M") %></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Customer Form -->
+  <%= form_with(model: @appointment, url: booking_appointments_path(tenant_slug: @booking_tenant.slug), method: :post, class: "space-y-4") do |f| %>
+    <%= f.hidden_field :service_id, value: @service.id %>
+    <%= f.hidden_field :professional_id, value: @professional.id %>
+    <%= f.hidden_field :starts_at, value: @starts_at.iso8601 %>
+
+    <div>
+      <%= f.label :client_name, "Seu Nome Completo *", class: "block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1" %>
+      <%= f.text_field :client_name, value: @client_name, required: true, placeholder: "Ex: Ana Beatriz Silva", class: "w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm text-slate-900 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600" %>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div>
+        <%= f.label :client_phone, "WhatsApp / Telefone *", class: "block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1" %>
+        <%= f.telephone_field :client_phone, value: @client_phone, required: true, placeholder: "(11) 99999-9999", class: "w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm text-slate-900 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600" %>
+        <p class="text-[11px] text-slate-400 mt-1">Usado para lembretes e confirmação.</p>
+      </div>
+
+      <div>
+        <%= f.label :client_email, "Seu E-mail (opcional)", class: "block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1" %>
+        <%= f.email_field :client_email, value: @client_email, placeholder: "ana@exemplo.com", class: "w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm text-slate-900 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600" %>
+        <p class="text-[11px] text-slate-400 mt-1">Para receber o comprovante no e-mail.</p>
+      </div>
+    </div>
+
+    <div>
+      <%= f.label :notes, "Alguma observação especial? (opcional)", class: "block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1" %>
+      <%= f.text_area :notes, rows: 2, placeholder: "Ex: Tenho preferência por tesoura / Sou alérgica a esmalte X...", class: "w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm text-slate-900 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600" %>
+    </div>
+
+    <div class="pt-4 border-t border-slate-100 flex items-center justify-between">
+      <%= link_to "← Trocar Horário", booking_slots_path(tenant_slug: @booking_tenant.slug, service_id: @service.id, professional_id: @professional.id, date: @starts_at.to_date), class: "text-xs font-semibold text-slate-500 hover:text-slate-800" %>
+      <%= f.submit "Confirmar Agendamento", class: "px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-sm shadow-md shadow-indigo-600/20 transition-all cursor-pointer" %>
+    </div>
+  <% end %>
+</div>

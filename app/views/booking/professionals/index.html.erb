@@ -1,0 +1,65 @@
+<div class="p-6 sm:p-8 space-y-6">
+  <!-- Step Indicator -->
+  <div class="flex items-center justify-between border-b border-slate-100 pb-5">
+    <div class="flex items-center space-x-2">
+      <span class="w-7 h-7 rounded-full bg-indigo-600 text-white font-bold text-xs flex items-center justify-center">2</span>
+      <span class="font-bold text-slate-900 text-sm">Escolha o Profissional</span>
+    </div>
+    <span class="text-xs text-slate-400 font-medium">Passo 2 de 4</span>
+  </div>
+
+  <% if @service %>
+    <!-- Selected Service Summary Card -->
+    <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/80 flex items-center justify-between">
+      <div>
+        <p class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Serviço Selecionado</p>
+        <p class="text-sm font-bold text-slate-900"><%= @service.name %> (<%= @service.duration_minutes %> min)</p>
+      </div>
+      <div class="text-right">
+        <span class="text-sm font-bold text-indigo-600"><%= format_cents(@service.price_cents, @service.currency) %></span>
+        <%= link_to "Alterar", booking_path(tenant_slug: @booking_tenant.slug), class: "block text-[11px] font-semibold text-slate-500 hover:text-slate-800" %>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Professionals Grid / List -->
+  <div class="space-y-3">
+    <% if @professionals.any? %>
+      <% @professionals.each do |pro| %>
+        <%= link_to booking_slots_path(tenant_slug: @booking_tenant.slug, service_id: @service&.id, professional_id: pro.id), class: "group block p-4 rounded-2xl border border-slate-200/90 hover:border-indigo-500 hover:shadow-md transition-all bg-white" do %>
+          <div class="flex items-center justify-between gap-4">
+            <div class="flex items-center gap-3.5">
+              <% if pro.avatar_url.present? %>
+                <img src="<%= pro.avatar_url %>" alt="<%= pro.name %>" class="w-12 h-12 rounded-xl object-cover border border-slate-200">
+              <% else %>
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-indigo-500 to-violet-500 text-white font-bold text-base flex items-center justify-center shadow-sm">
+                  <%= pro.name.first %>
+                </div>
+              <% end %>
+              <div>
+                <h3 class="font-bold text-slate-900 text-sm group-hover:text-indigo-600 transition-colors"><%= pro.name %></h3>
+                <p class="text-xs text-slate-500 mt-0.5">Disponível para atendimento</p>
+              </div>
+            </div>
+
+            <div class="flex items-center text-xs font-semibold text-indigo-600 gap-1 group-hover:translate-x-0.5 transition-transform">
+              <span>Selecionar</span>
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+              </svg>
+            </div>
+          </div>
+        <% end %>
+      <% end %>
+    <% else %>
+      <div class="py-12 text-center text-slate-400">
+        <p class="text-sm font-semibold text-slate-700">Nenhum profissional habilitado para este serviço.</p>
+        <p class="text-xs mt-1">Por favor, selecione outro serviço.</p>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="pt-4 border-t border-slate-100 flex justify-start">
+    <%= link_to "← Voltar aos Serviços", booking_path(tenant_slug: @booking_tenant.slug), class: "text-xs font-semibold text-slate-500 hover:text-slate-800" %>
+  </div>
+</div>

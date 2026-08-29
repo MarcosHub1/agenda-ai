@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full bg-slate-50">
+<head>
+  <meta charset="utf-8">
+  <title><%= content_for(:title) || current_tenant&.name || "AgendaAI" %> | Painel</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <%= csrf_meta_tags %>
+  <%= csp_meta_tag %>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  </style>
+  <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+  <%= javascript_importmap_tags %>
+</head>
+
+<body class="h-full flex flex-col antialiased text-slate-800">
+  <div class="min-h-full flex">
+    <!-- Sidebar Desktop -->
+    <aside class="hidden md:flex md:w-64 md:flex-col fixed inset-y-0 z-30 bg-slate-900 border-r border-slate-800 text-slate-300">
+      <!-- Logo & Tenant Info -->
+      <div class="p-5 border-b border-slate-800 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center font-bold text-white shadow-md shadow-indigo-500/20">
+            A
+          </div>
+          <div>
+            <div class="font-bold text-white text-base leading-tight tracking-tight">AgendaAI</div>
+            <div class="text-xs text-slate-400 font-medium truncate max-w-[130px]"><%= current_tenant&.name %></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation Links -->
+      <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+        <% has_sub = current_tenant&.active_subscription? %>
+
+        <%= link_to dashboard_root_path, class: "flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-colors #{current_page?(dashboard_root_path) ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/60'}" do %>
+          <div class="flex items-center gap-3">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+            </svg>
+            <span>Visão Geral</span>
+          </div>
+          <% unless has_sub %>
+            <svg class="w-4 h-4 text-amber-400/80" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+            </svg>
+          <% end %>
+        <% end %>
+
+        <%= link_to dashboard_appointments_path, class: "flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-colors #{current_page?(dashboard_appointments_path) || request.path.start_with?('/dashboard/appointments') ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/60'}" do %>
+          <div class="flex items-center gap-3">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
+            </svg>
+            <span>Agendamentos</span>
+          </div>
+          <% unless has_sub %>
+            <svg class="w-4 h-4 text-amber-400/80" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+            </svg>
+          <% end %>
+        <% end %>
+
+        <%= link_to dashboard_professionals_path, class: "flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-colors #{request.path.start_with?('/dashboard/professionals') ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/60'}" do %>
+          <div class="flex items-center gap-3">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
+            </svg>
+            <span>Profissionais</span>
+          </div>
+          <% unless has_sub %>
+            <svg class="w-4 h-4 text-amber-400/80" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+            </svg>
+          <% end %>
+        <% end %>
+
+        <%= link_to dashboard_services_path, class: "flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-colors #{request.path.start_with?('/dashboard/services') ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/60'}" do %>
+          <div class="flex items-center gap-3">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z" />
+            </svg>
+            <span>Serviços</span>
+          </div>
+          <% unless has_sub %>
+            <svg class="w-4 h-4 text-amber-400/80" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+            </svg>
+          <% end %>
+        <% end %>
+
+        <%= link_to dashboard_clients_path, class: "flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-colors #{request.path.start_with?('/dashboard/clients') ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/60'}" do %>
+          <div class="flex items-center gap-3">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z" />
+            </svg>
+            <span>Clientes</span>
+          </div>
+          <% unless has_sub %>
+            <svg class="w-4 h-4 text-amber-400/80" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+            </svg>
+          <% end %>
+        <% end %>
+
+        <%= link_to dashboard_billing_path, class: "flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-colors #{request.path.start_with?('/dashboard/billing') ? 'bg-indigo-600 text-white shadow-sm' : (has_sub ? 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/60' : 'bg-amber-500/20 text-amber-300 font-semibold hover:bg-amber-500/30')}" do %>
+          <div class="flex items-center gap-3">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Z" />
+            </svg>
+            <span>Planos & Assinatura</span>
+          </div>
+          <% unless has_sub %>
+            <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-400 text-slate-900 uppercase tracking-wide">Pendente</span>
+          <% end %>
+        <% end %>
+
+        <%= link_to dashboard_settings_path, class: "flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-colors #{request.path.start_with?('/dashboard/settings') ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/60'}" do %>
+          <div class="flex items-center gap-3">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+            </svg>
+            <span>Configurações</span>
+          </div>
+          <% unless has_sub %>
+            <svg class="w-4 h-4 text-amber-400/80" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+            </svg>
+          <% end %>
+        <% end %>
+      </nav>
+
+      <!-- Bottom Links / Public Link -->
+      <div class="p-3 border-t border-slate-800 space-y-2">
+        <% if current_tenant %>
+          <%= link_to booking_path(tenant_slug: current_tenant.slug), target: "_blank", class: "flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium bg-slate-800 text-indigo-400 hover:bg-slate-700 transition-colors" do %>
+            <span class="truncate">Ver Booking Page</span>
+            <svg class="w-4 h-4 ml-1 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+            </svg>
+          <% end %>
+        <% end %>
+
+        <div class="flex items-center justify-between px-3 py-2 text-xs text-slate-400">
+          <div class="flex items-center space-x-2 truncate">
+            <div class="w-6 h-6 rounded-full bg-slate-700 flex items-center justify-center font-bold text-slate-200 uppercase text-[10px]">
+              <%= Current.session&.user&.email_address&.first || "U" %>
+            </div>
+            <span class="truncate max-w-[110px]"><%= Current.session&.user&.email_address %></span>
+          </div>
+          <%= button_to session_path, method: :delete, class: "text-slate-400 hover:text-rose-400 transition-colors p-1", title: "Sair" do %>
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75" />
+            </svg>
+          <% end %>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="md:pl-64 flex-1 flex flex-col min-h-screen">
+      <!-- Topbar Mobile -->
+      <header class="md:hidden bg-slate-900 text-white p-4 flex items-center justify-between border-b border-slate-800">
+        <div class="flex items-center space-x-2">
+          <div class="w-7 h-7 rounded-lg bg-indigo-600 flex items-center justify-center font-bold text-xs">A</div>
+          <span class="font-bold text-sm truncate"><%= current_tenant&.name %></span>
+        </div>
+        <div class="flex items-center space-x-2">
+          <%= link_to "Planos", dashboard_billing_path, class: "text-xs bg-indigo-600 px-2.5 py-1 rounded-lg text-white" %>
+          <%= button_to "Sair", session_path, method: :delete, class: "text-xs text-slate-400 px-2 py-1" %>
+        </div>
+      </header>
+
+      <!-- Flash Notifications & Subscription Paywall Banner -->
+      <div class="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 mt-4">
+        <% unless current_tenant&.active_subscription? %>
+          <div class="rounded-2xl bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-rose-500/10 border border-amber-300/80 p-4 mb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm animate-fade-in">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center flex-shrink-0 shadow-md shadow-amber-500/20">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+                </svg>
+              </div>
+              <div>
+                <h4 class="text-sm font-bold text-slate-900">Acesso Restrito: Assinatura Não Ativa</h4>
+                <p class="text-xs text-slate-600 mt-0.5">Assine um plano para desbloquear agendamentos, serviços, profissionais e o link público de agendamentos.</p>
+              </div>
+            </div>
+            <%= link_to "Ver Planos Disponíveis", dashboard_billing_path, class: "px-4 py-2 rounded-xl text-xs font-bold bg-amber-600 hover:bg-amber-700 text-white shadow-sm transition-all whitespace-nowrap" %>
+          </div>
+        <% end %>
+
+        <% if notice.present? %>
+          <div class="rounded-xl bg-emerald-50 border border-emerald-200 p-4 mb-4 flex items-center justify-between text-emerald-800 text-sm shadow-sm animate-fade-in">
+            <div class="flex items-center gap-2">
+              <svg class="w-5 h-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+              </svg>
+              <span><%= notice %></span>
+            </div>
+          </div>
+        <% end %>
+        <% if alert.present? %>
+          <div class="rounded-xl bg-rose-50 border border-rose-200 p-4 mb-4 flex items-center justify-between text-rose-800 text-sm shadow-sm animate-fade-in">
+            <div class="flex items-center gap-2">
+              <svg class="w-5 h-5 text-rose-600" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+              </svg>
+              <span><%= alert %></span>
+            </div>
+          </div>
+        <% end %>
+      </div>
+
+      <!-- Main Body -->
+      <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <%= yield %>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

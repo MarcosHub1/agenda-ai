@@ -1,0 +1,70 @@
+<div class="space-y-6">
+  <!-- Header & Search -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-bold text-slate-900">Base de Clientes</h1>
+      <p class="text-sm text-slate-500 mt-1">Clientes cadastrados automaticamente através dos agendamentos.</p>
+    </div>
+
+    <%= form_with(url: dashboard_clients_path, method: :get, class: "flex items-center gap-2") do |f| %>
+      <div class="relative">
+        <svg class="w-4 h-4 text-slate-400 absolute left-3 top-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+        </svg>
+        <%= f.text_field :query, value: params[:query], placeholder: "Buscar por nome, e-mail ou telefone...", class: "pl-9 pr-4 py-2 rounded-xl border border-slate-300 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 w-64" %>
+      </div>
+      <%= f.submit "Buscar", class: "px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-white font-medium rounded-xl text-xs transition-colors cursor-pointer" %>
+    <% end %>
+  </div>
+
+  <!-- Clients List Table -->
+  <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr class="bg-slate-50 border-b border-slate-200/80 text-slate-500 text-xs font-semibold uppercase tracking-wider">
+            <th class="py-3.5 px-4 sm:px-6">Cliente</th>
+            <th class="py-3.5 px-4">E-mail</th>
+            <th class="py-3.5 px-4">Telefone / WhatsApp</th>
+            <th class="py-3.5 px-4">Total Agendamentos</th>
+            <th class="py-3.5 px-4 text-right">Ações</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 text-sm text-slate-700">
+          <% if @clients.any? %>
+            <% @clients.each do |cli| %>
+              <tr class="hover:bg-slate-50/70 transition-colors">
+                <td class="py-4 px-4 sm:px-6">
+                  <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-indigo-50 text-indigo-700 font-bold text-xs flex items-center justify-center">
+                      <%= cli.name.first %>
+                    </div>
+                    <span class="font-bold text-slate-900"><%= cli.name %></span>
+                  </div>
+                </td>
+                <td class="py-4 px-4 text-slate-600 text-xs">
+                  <%= cli.email.presence || "—" %>
+                </td>
+                <td class="py-4 px-4 text-slate-600 text-xs font-mono">
+                  <%= cli.phone.presence || "—" %>
+                </td>
+                <td class="py-4 px-4 font-semibold text-slate-900 text-xs">
+                  <%= cli.appointments.count %> atendimentos
+                </td>
+                <td class="py-4 px-4 text-right">
+                  <%= link_to "Ver Histórico", dashboard_client_path(cli), class: "text-xs font-semibold text-indigo-600 hover:text-indigo-800" %>
+                </td>
+              </tr>
+            <% end %>
+          <% else %>
+            <tr>
+              <td colspan="5" class="py-12 text-center text-slate-400">
+                Nenhum cliente cadastrado ainda.
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

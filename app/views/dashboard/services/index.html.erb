@@ -1,0 +1,87 @@
+<div class="space-y-6">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-bold text-slate-900">Serviços</h1>
+      <p class="text-sm text-slate-500 mt-1">Configure o catálogo de serviços, preços, durações e profissionais habilitados.</p>
+    </div>
+    <%= link_to new_dashboard_service_path, class: "inline-flex items-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl shadow-sm text-sm transition-colors" do %>
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+      </svg>
+      <span>Novo Serviço</span>
+    <% end %>
+  </div>
+
+  <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr class="bg-slate-50 border-b border-slate-200/80 text-slate-500 text-xs font-semibold uppercase tracking-wider">
+            <th class="py-3.5 px-4 sm:px-6">Nome do Serviço</th>
+            <th class="py-3.5 px-4">Duração</th>
+            <th class="py-3.5 px-4">Preço</th>
+            <th class="py-3.5 px-4">Profissionais Habilitados</th>
+            <th class="py-3.5 px-4">Status</th>
+            <th class="py-3.5 px-4 text-right">Ações</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 text-sm text-slate-700">
+          <% if @services.any? %>
+            <% @services.each do |srv| %>
+              <tr class="hover:bg-slate-50/70 transition-colors">
+                <td class="py-4 px-4 sm:px-6">
+                  <div>
+                    <span class="font-bold text-slate-900 block"><%= srv.name %></span>
+                    <% if srv.description.present? %>
+                      <span class="text-xs text-slate-500 line-clamp-1"><%= srv.description %></span>
+                    <% end %>
+                  </div>
+                </td>
+                <td class="py-4 px-4 font-medium text-slate-600">
+                  <span class="inline-flex items-center gap-1">
+                    <svg class="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                    </svg>
+                    <%= srv.duration_minutes %> min
+                  </span>
+                </td>
+                <td class="py-4 px-4 font-bold text-slate-900">
+                  <%= format_cents(srv.price_cents, srv.currency) %>
+                </td>
+                <td class="py-4 px-4">
+                  <div class="flex -space-x-1.5 overflow-hidden">
+                    <% if srv.professionals.any? %>
+                      <% srv.professionals.each do |pro| %>
+                        <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 text-[10px] font-bold ring-2 ring-white" title="<%= pro.name %>">
+                          <%= pro.name.first %>
+                        </span>
+                      <% end %>
+                      <span class="text-xs text-slate-500 ml-2 self-center"><%= srv.professionals.count %> prof.</span>
+                    <% else %>
+                      <span class="text-xs text-rose-500 font-medium">Nenhum</span>
+                    <% end %>
+                  </div>
+                </td>
+                <td class="py-4 px-4">
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium <%= srv.active? ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-600' %>">
+                    <%= srv.active? ? "Ativo" : "Inativo" %>
+                  </span>
+                </td>
+                <td class="py-4 px-4 text-right space-x-2">
+                  <%= link_to "Editar", edit_dashboard_service_path(srv), class: "text-xs font-semibold text-indigo-600 hover:text-indigo-800" %>
+                  <%= button_to "Excluir", dashboard_service_path(srv), method: :delete, data: { turbo_confirm: "Excluir este serviço?" }, class: "inline-block text-xs font-semibold text-rose-600 hover:text-rose-800" %>
+                </td>
+              </tr>
+            <% end %>
+          <% else %>
+            <tr>
+              <td colspan="6" class="py-10 text-center text-slate-400">
+                Nenhum serviço cadastrado ainda.
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

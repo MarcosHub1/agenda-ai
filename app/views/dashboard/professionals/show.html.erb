@@ -1,0 +1,132 @@
+<div class="space-y-6">
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <%= link_to "← Voltar para Profissionais", dashboard_professionals_path, class: "text-xs font-semibold text-indigo-600 hover:text-indigo-800" %>
+      <div class="flex items-center gap-3 mt-2">
+        <% if @professional.avatar_url.present? %>
+          <img src="<%= @professional.avatar_url %>" alt="<%= @professional.name %>" class="w-12 h-12 rounded-2xl object-cover border border-slate-200 shadow-sm">
+        <% else %>
+          <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-600 text-white font-bold text-lg flex items-center justify-center shadow-sm">
+            <%= @professional.name.first %>
+          </div>
+        <% end %>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-2xl font-bold text-slate-900"><%= @professional.name %></h1>
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium <%= @professional.active? ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-600' %>">
+              <%= @professional.active? ? "Ativo" : "Inativo" %>
+            </span>
+          </div>
+          <p class="text-xs text-slate-500"><%= @professional.email.presence || "Sem e-mail" %></p>
+        </div>
+      </div>
+    </div>
+    <div class="flex items-center gap-2">
+      <%= link_to "Editar Dados", edit_dashboard_professional_path(@professional), class: "px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-xl text-xs transition-colors" %>
+      <%= button_to "Excluir", dashboard_professional_path(@professional), method: :delete, data: { turbo_confirm: "Tem certeza que deseja excluir este profissional?" }, class: "px-4 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 font-medium rounded-xl text-xs transition-colors" %>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Work Schedule (Horários Semanais) -->
+    <div class="lg:col-span-2 space-y-6">
+      <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6">
+        <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-4">
+          <div>
+            <h2 class="text-base font-bold text-slate-900">Horários de Trabalho Semanais</h2>
+            <p class="text-xs text-slate-500">Defina os dias e intervalos de atendimento regulares.</p>
+          </div>
+        </div>
+
+        <div class="space-y-3">
+          <% @work_schedules.each do |ws| %>
+            <%= form_with(model: [:dashboard, @professional, ws], method: :patch, class: "flex flex-col sm:flex-row sm:items-center justify-between p-3.5 rounded-xl border border-slate-200/80 hover:border-slate-300 transition-colors gap-3 bg-slate-50/50") do |f| %>
+              <div class="flex items-center gap-3 min-w-[140px]">
+                <%= f.check_box :enabled, class: "rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 w-4 h-4" %>
+                <span class="text-sm font-semibold text-slate-800"><%= day_name_pt(ws.day_of_week) %></span>
+              </div>
+
+              <div class="flex flex-wrap items-center gap-2 text-xs">
+                <div class="flex items-center gap-1">
+                  <span class="text-slate-500">De</span>
+                  <%= f.time_field :start_time, value: ws.start_time&.strftime("%H:%M"), class: "rounded-lg border border-slate-300 px-2 py-1 text-xs focus:ring-1 focus:ring-indigo-500" %>
+                  <span class="text-slate-500">às</span>
+                  <%= f.time_field :end_time, value: ws.end_time&.strftime("%H:%M"), class: "rounded-lg border border-slate-300 px-2 py-1 text-xs focus:ring-1 focus:ring-indigo-500" %>
+                </div>
+
+                <div class="flex items-center gap-1 sm:ml-2 pl-2 sm:border-l border-slate-200">
+                  <span class="text-slate-500">Intervalo:</span>
+                  <%= f.time_field :break_start, value: ws.break_start&.strftime("%H:%M"), class: "rounded-lg border border-slate-300 px-2 py-1 text-xs focus:ring-1 focus:ring-indigo-500" %>
+                  <span class="text-slate-500">-</span>
+                  <%= f.time_field :break_end, value: ws.break_end&.strftime("%H:%M"), class: "rounded-lg border border-slate-300 px-2 py-1 text-xs focus:ring-1 focus:ring-indigo-500" %>
+                </div>
+              </div>
+
+              <%= f.submit "Salvar", class: "px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold rounded-lg text-xs self-end sm:self-center transition-colors cursor-pointer" %>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Schedule Exceptions / Folgas & Exceções -->
+      <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6">
+        <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-4">
+          <div>
+            <h2 class="text-base font-bold text-slate-900">Folgas e Exceções de Horário</h2>
+            <p class="text-xs text-slate-500">Cadastre dias bloqueados (feriados, férias) ou horários especiais para datas específicas.</p>
+          </div>
+          <%= link_to "Gerenciar Exceções", dashboard_professional_schedule_exceptions_path(@professional), class: "text-xs font-semibold text-indigo-600 hover:text-indigo-800" %>
+        </div>
+
+        <% if @schedule_exceptions.any? %>
+          <div class="divide-y divide-slate-100">
+            <% @schedule_exceptions.each do |exc| %>
+              <div class="py-3 flex items-center justify-between">
+                <div>
+                  <div class="flex items-center gap-2">
+                    <span class="text-sm font-semibold text-slate-800"><%= l(exc.exception_date, format: :long) %></span>
+                    <% if exc.is_blocked? %>
+                      <span class="px-2 py-0.5 rounded-full text-xs font-medium bg-rose-50 text-rose-700 border border-rose-200">Dia Bloqueado / Folga</span>
+                    <% else %>
+                      <span class="px-2 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200">Horário Especial: <%= exc.start_time&.strftime("%H:%M") %> - <%= exc.end_time&.strftime("%H:%M") %></span>
+                    <% end %>
+                  </div>
+                  <% if exc.reason.present? %>
+                    <p class="text-xs text-slate-500 mt-0.5">Motivo: <%= exc.reason %></p>
+                  <% end %>
+                </div>
+                <%= button_to "Remover", dashboard_professional_schedule_exception_path(@professional, exc), method: :delete, data: { turbo_confirm: "Remover esta exceção?" }, class: "text-xs text-rose-600 hover:text-rose-800 font-medium" %>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <p class="text-xs text-slate-400 italic">Nenhuma folga ou horário especial cadastrado para os próximos dias.</p>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Sidebar Info / Services -->
+    <div class="space-y-6">
+      <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm space-y-4">
+        <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider">Serviços Habilitados</h3>
+        <% if @services.any? %>
+          <div class="space-y-2">
+            <% @services.each do |srv| %>
+              <div class="p-3 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between">
+                <div>
+                  <p class="text-xs font-bold text-slate-900"><%= srv.name %></p>
+                  <p class="text-[11px] text-slate-500"><%= srv.duration_minutes %> min</p>
+                </div>
+                <span class="text-xs font-semibold text-slate-700"><%= format_cents(srv.price_cents) %></span>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <p class="text-xs text-slate-400 italic">Nenhum serviço vinculado a este profissional.</p>
+        <% end %>
+        <%= link_to "Editar Vínculos", edit_dashboard_professional_path(@professional), class: "block text-center text-xs font-semibold text-indigo-600 hover:text-indigo-800 pt-2" %>
+      </div>
+    </div>
+  </div>
+</div>

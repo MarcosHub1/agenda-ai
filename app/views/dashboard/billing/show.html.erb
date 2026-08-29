@@ -1,0 +1,257 @@
+<% content_for :title, "Planos & Assinatura" %>
+
+<div class="max-w-6xl mx-auto space-y-8">
+  <!-- Header -->
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-bold tracking-tight text-slate-900">Planos & Assinatura</h1>
+      <p class="text-sm text-slate-500 mt-1">Gerencie seu plano, faturas e métodos de pagamento com segurança via Stripe.</p>
+    </div>
+
+    <% if @subscription&.active_or_trialing? %>
+      <div>
+        <%= button_to portal_dashboard_billing_path, method: :post, class: "inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300 shadow-sm transition-all duration-200" do %>
+          <svg class="w-4 h-4 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15A2.25 2.25 0 0 0 2.25 6.75v10.5A2.25 2.25 0 0 0 4.5 21Z" />
+          </svg>
+          <span>Gerenciar Faturas & Cartão</span>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Subscription Status Card (se houver assinatura) -->
+  <% if @subscription.present? %>
+    <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm overflow-hidden relative">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div class="space-y-1">
+          <div class="flex items-center gap-3">
+            <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Status Atual</span>
+            <% case @subscription.status %>
+            <% when 'active' %>
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                Ativa (<%= @subscription.plan_name %>)
+              </span>
+            <% when 'trialing' %>
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200/60">
+                <span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
+                Período de Testes
+              </span>
+            <% when 'past_due' %>
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200/60">
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                Pagamento Pendente
+              </span>
+            <% when 'cancelled' %>
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200/60">
+                <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                Cancelada
+              </span>
+            <% else %>
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700">
+                <%= @subscription.status.humanize %>
+              </span>
+            <% end %>
+          </div>
+          <p class="text-lg font-bold text-slate-900"><%= @subscription.plan_name %> - <%= @subscription.amount_formatted %></p>
+          <% if @subscription.current_period_end.present? %>
+            <p class="text-xs text-slate-500">
+              <%= @subscription.cancel_at_period_end? ? "Acesso até:" : "Próxima renovação em:" %>
+              <span class="font-medium text-slate-700"><%= @subscription.current_period_end.strftime("%d/%m/%Y") %></span>
+            </p>
+          <% end %>
+        </div>
+
+        <% if @subscription.stripe_customer_id.present? %>
+          <div class="flex items-center gap-3">
+            <%= button_to portal_dashboard_billing_path, method: :post, class: "text-xs font-semibold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 transition-colors" do %>
+              <span>Alterar plano ou cancelar</span>
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+              </svg>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Pricing Cards Grid -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch pt-2">
+    <!-- Plano Mensal -->
+    <div class="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm flex flex-col justify-between hover:shadow-md hover:border-slate-300 transition-all duration-300 relative">
+      <div>
+        <div class="flex items-center justify-between">
+          <span class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700">Flexibilidade Total</span>
+          <% if @subscription&.active_or_trialing? && @subscription.monthly? %>
+            <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-50 text-indigo-600 border border-indigo-200">Plano Atual</span>
+          <% end %>
+        </div>
+
+        <h3 class="text-xl font-bold text-slate-900 mt-4">Plano Mensal</h3>
+        <p class="text-sm text-slate-500 mt-1">Ideal para começar e testar todo o potencial do AgendaAI sem compromisso a longo prazo.</p>
+
+        <div class="mt-6 flex items-baseline gap-1">
+          <span class="text-4xl font-extrabold tracking-tight text-slate-900">R$ 79,90</span>
+          <span class="text-sm font-semibold text-slate-500">/mês</span>
+        </div>
+
+        <!-- Features list -->
+        <ul class="mt-8 space-y-3.5 text-sm text-slate-600">
+          <li class="flex items-center gap-3">
+            <svg class="w-5 h-5 text-indigo-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+            </svg>
+            <span>Agendamentos ilimitados</span>
+          </li>
+          <li class="flex items-center gap-3">
+            <svg class="w-5 h-5 text-indigo-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+            </svg>
+            <span>Página de Booking pública personalizada</span>
+          </li>
+          <li class="flex items-center gap-3">
+            <svg class="w-5 h-5 text-indigo-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+            </svg>
+            <span>Gestão de múltiplos profissionais e serviços</span>
+          </li>
+          <li class="flex items-center gap-3">
+            <svg class="w-5 h-5 text-indigo-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+            </svg>
+            <span>Cancelamento a qualquer momento</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="mt-8 pt-6 border-t border-slate-100">
+        <% if @subscription&.active_or_trialing? && @subscription.monthly? %>
+          <button disabled class="w-full py-3 px-4 rounded-xl text-sm font-semibold bg-slate-100 text-slate-400 cursor-default">
+            Seu Plano Atual
+          </button>
+        <% else %>
+          <%= button_to checkout_dashboard_billing_path, params: { plan_interval: "monthly" }, method: :post, class: "w-full py-3.5 px-4 rounded-xl text-sm font-semibold bg-slate-900 hover:bg-slate-800 text-white shadow-sm hover:shadow transition-all duration-200 flex items-center justify-center gap-2" do %>
+            <span>Assinar Plano Mensal</span>
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+            </svg>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Plano Anual (Destaque) -->
+    <div class="rounded-3xl border-2 border-indigo-600 bg-gradient-to-b from-indigo-900/5 to-white p-8 shadow-xl shadow-indigo-600/10 flex flex-col justify-between relative overflow-hidden">
+      <!-- Badge Recomendado / Economia -->
+      <div class="absolute top-0 right-0">
+        <div class="bg-gradient-to-r from-indigo-600 to-violet-600 text-white text-[11px] font-extrabold uppercase tracking-wider py-1.5 px-4 rounded-bl-2xl shadow-sm">
+          Economize 42%
+        </div>
+      </div>
+
+      <div>
+        <div class="flex items-center justify-between">
+          <span class="px-3 py-1 rounded-full text-xs font-bold bg-indigo-100 text-indigo-700">Mais Popular & Econômico</span>
+          <% if @subscription&.active_or_trialing? && @subscription.yearly? %>
+            <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-600 border border-emerald-200">Plano Atual</span>
+          <% end %>
+        </div>
+
+        <h3 class="text-xl font-bold text-slate-900 mt-4">Plano Anual</h3>
+        <p class="text-sm text-slate-500 mt-1">Garante 1 ano de acesso completo com máxima economia para o seu negócio.</p>
+
+        <div class="mt-6 flex items-baseline gap-2">
+          <span class="text-4xl font-extrabold tracking-tight text-slate-900">R$ 549,90</span>
+          <span class="text-sm font-semibold text-slate-500">/ano</span>
+        </div>
+        <p class="text-xs font-semibold text-indigo-600 mt-1">Apenas ~R$ 45,82 por mês cobrado anualmente</p>
+
+        <!-- Features list -->
+        <ul class="mt-8 space-y-3.5 text-sm text-slate-600">
+          <li class="flex items-center gap-3 font-medium text-slate-800">
+            <div class="w-5 h-5 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 flex-shrink-0">
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+              </svg>
+            </div>
+            <span>Todos os recursos do plano mensal</span>
+          </li>
+          <li class="flex items-center gap-3">
+            <div class="w-5 h-5 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 flex-shrink-0">
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+              </svg>
+            </div>
+            <span>Economia de mais de R$ 400 por ano</span>
+          </li>
+          <li class="flex items-center gap-3">
+            <div class="w-5 h-5 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 flex-shrink-0">
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+              </svg>
+            </div>
+            <span>Suporte prioritário via WhatsApp / E-mail</span>
+          </li>
+          <li class="flex items-center gap-3">
+            <div class="w-5 h-5 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 flex-shrink-0">
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+              </svg>
+            </div>
+            <span>Acesso antecipado a novos recursos de IA</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="mt-8 pt-6 border-t border-indigo-100">
+        <% if @subscription&.active_or_trialing? && @subscription.yearly? %>
+          <button disabled class="w-full py-3 px-4 rounded-xl text-sm font-semibold bg-slate-100 text-slate-400 cursor-default">
+            Seu Plano Atual
+          </button>
+        <% else %>
+          <%= button_to checkout_dashboard_billing_path, params: { plan_interval: "yearly" }, method: :post, class: "w-full py-3.5 px-4 rounded-xl text-sm font-semibold bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white shadow-lg shadow-indigo-600/25 transition-all duration-200 flex items-center justify-center gap-2" do %>
+            <span>Assinar Plano Anual com 42% OFF</span>
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+            </svg>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Trust & Security Highlights -->
+  <div class="rounded-2xl border border-slate-200/80 bg-slate-50/50 p-6 flex flex-col md:flex-row items-center justify-around gap-6 text-slate-600 text-sm">
+    <div class="flex items-center gap-3">
+      <svg class="w-6 h-6 text-indigo-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
+      </svg>
+      <div>
+        <div class="font-semibold text-slate-800">Pagamento 100% Seguro</div>
+        <div class="text-xs text-slate-500">Processado via infraestrutura global Stripe</div>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <svg class="w-6 h-6 text-indigo-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+      </svg>
+      <div>
+        <div class="font-semibold text-slate-800">Cancele quando quiser</div>
+        <div class="text-xs text-slate-500">Sem multas, burocracia ou fidelidade oculta</div>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <svg class="w-6 h-6 text-indigo-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+      </svg>
+      <div>
+        <div class="font-semibold text-slate-800">Faturamento Transparente</div>
+        <div class="text-xs text-slate-500">Acesse recibos e notas fiscais a qualquer momento</div>
+      </div>
+    </div>
+  </div>
+</div>

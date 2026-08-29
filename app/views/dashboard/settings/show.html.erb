@@ -1,0 +1,56 @@
+<div class="max-w-3xl mx-auto space-y-6">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-bold text-slate-900">Configurações do Estabelecimento</h1>
+      <p class="text-sm text-slate-500 mt-1">Dados gerais, regras de agendamento e preferências do tenant.</p>
+    </div>
+    <%= link_to "Editar Configurações", edit_dashboard_settings_path, class: "px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl text-xs transition-colors shadow-sm" %>
+  </div>
+
+  <div class="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-sm space-y-6">
+    <div>
+      <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4">Informações do Negócio</h3>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-100">
+          <p class="text-xs text-slate-500">Nome do Estabelecimento</p>
+          <p class="text-sm font-bold text-slate-900 mt-0.5"><%= @account.name %></p>
+        </div>
+
+        <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-100">
+          <p class="text-xs text-slate-500">Slug da URL Pública</p>
+          <p class="text-sm font-bold text-indigo-600 mt-0.5 font-mono">/<%= @account.slug %></p>
+        </div>
+
+        <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-100">
+          <p class="text-xs text-slate-500">Fuso Horário (Timezone)</p>
+          <p class="text-sm font-bold text-slate-900 mt-0.5"><%= @account.timezone || "America/Sao_Paulo (UTC-3)" %></p>
+        </div>
+
+        <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-100">
+          <p class="text-xs text-slate-500">Moeda Padrão</p>
+          <p class="text-sm font-bold text-slate-900 mt-0.5"><%= @account.currency || "BRL (R$)" %></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="pt-4 border-t border-slate-100">
+      <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4">Regras do Motor de Disponibilidade</h3>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-100">
+          <p class="text-xs text-slate-500">Antecedência Mínima</p>
+          <p class="text-sm font-bold text-slate-900 mt-0.5"><%= @account.settings&.dig("min_advance_hours") || 2 %> horas</p>
+        </div>
+
+        <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-100">
+          <p class="text-xs text-slate-500">Antecedência Máxima</p>
+          <p class="text-sm font-bold text-slate-900 mt-0.5"><%= @account.settings&.dig("max_advance_days") || 30 %> dias</p>
+        </div>
+
+        <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-100">
+          <p class="text-xs text-slate-500">Buffer entre Atendimentos</p>
+          <p class="text-sm font-bold text-slate-900 mt-0.5"><%= @account.settings&.dig("slot_buffer_minutes") || 0 %> minutos</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
