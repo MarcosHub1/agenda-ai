@@ -69,7 +69,7 @@ end
 
 gem "acts_as_tenant", "~> 1.0"
 gem "pundit", "~> 2.5"
-gem "stripe", "~> 13.0"
+gem "stripe", "~> 19.6"
 
 gem "rspec-rails", "~> 8.0", groups: [ :development, :test ]
 gem "factory_bot_rails", "~> 6.5", groups: [ :development, :test ]
